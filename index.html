@@ -360,13 +360,13 @@
     <h2 id="modal-title">Edit Node</h2>
     <label class="field">
       <span>Title</span>
-      <input id="in-title" type="text" maxlength="60" placeholder="e.g. Finances or Save $500">
+      <input id="in-title" type="text" maxlength="60" placeholder="e.g. Save $500">
     </label>
     <label class="field" id="field-type">
       <span>Node Type</span>
       <select id="in-type">
-        <option value="branch">🔷 Category (Blue)</option>
         <option value="task">🟩 Task (Statusable)</option>
+        <option value="branch">🔷 Category (Blue)</option>
       </select>
     </label>
     <label class="field" id="field-status">
@@ -849,8 +849,9 @@
       $('#field-status').classList.add('hidden');
     } else {
       $('#field-type').classList.remove('hidden');
-      $('#in-type').value = 'branch';
-      $('#field-status').classList.add('hidden');
+      $('#in-type').value = 'task';
+      $('#field-status').classList.remove('hidden');
+      $('#in-status').value = 'in_progress';
     }
 
     $('#in-title').placeholder = 'Title...';
