@@ -3,387 +3,605 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
-<meta name="theme-color" content="#080a0f">
+<meta name="theme-color" content="#07090e">
+<meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SkillTree">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="SkillTree — plan your skills, goals and progress on an infinite canvas.">
 <title>SkillTree</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%23080a0f'/><text x='50%' y='53%' dominant-baseline='middle' text-anchor='middle' fill='%23ffd166' font-family='system-ui, -apple-system, sans-serif' font-weight='900' font-size='240' letter-spacing='-8'>ST</text></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%23080a0f'/><text x='50%' y='53%' dominant-baseline='middle' text-anchor='middle' fill='%23ffd166' font-family='system-ui, -apple-system, sans-serif' font-weight='900' font-size='240' letter-spacing='-8'>ST</text></svg>">
 <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22SkillTree%22%2C%22short_name%22%3A%22SkillTree%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23080a0f%22%2C%22theme_color%22%3A%22%23080a0f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27128%27%20fill%3D%27%2523080a0f%27%2F%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2753%25%27%20dominant-baseline%3D%27middle%27%20text-anchor%3D%27middle%27%20fill%3D%27%2523ffd166%27%20font-family%3D%27system-ui%2C%20-apple-system%2C%20sans-serif%27%20font-weight%3D%27900%27%20font-size%3D%27240%27%20letter-spacing%3D%27-8%27%3EST%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
 <style>
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden;
-  }
-  body {
-    background: #080a0f;
-    color: #f0f3f9;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-    display: flex;
-    flex-direction: column;
-    -webkit-font-smoothing: antialiased;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: none;
-  }
+/* =====================================================================
+   SkillTree — styles
+   No backdrop-filter (expensive on low-end GPUs), no external fonts,
+   no web-font round trips. Everything is GPU-friendly.
+   ===================================================================== */
 
-  .topbar {
-    position: absolute;
-    top: max(12px, env(safe-area-inset-top));
-    left: 16px;
-    right: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    pointer-events: none;
-    z-index: 10;
-  }
-  .app-title {
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    color: #a0aec0;
-    pointer-events: auto;
-  }
-  .topbar-actions {
-    display: flex;
-    gap: 8px;
-    pointer-events: auto;
-  }
+*, *::before, *::after { box-sizing: border-box; }
 
-  .icon-btn {
-    background: rgba(22, 27, 38, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #e6e9ef;
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .15s ease;
-    user-select: none;
-    touch-action: manipulation;
-  }
-  .icon-btn:active {
-    transform: scale(0.95);
-    background: rgba(30, 37, 52, 0.9);
-  }
+:root {
+  --bg:        #07090e;
+  --panel:     #131a28;
+  --panel-2:   #0d1320;
+  --input-bg:  #070a11;
 
-  #menu {
-    position: fixed;
-    top: calc(62px + env(safe-area-inset-top));
-    right: 16px;
-    background: rgba(18, 22, 32, 0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 6px;
-    min-width: 200px;
-    z-index: 50;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-    animation: pop .12s cubic-bezier(0.16, 1, 0.3, 1);
+  --line:        rgba(255,255,255,.09);
+  --line-strong: rgba(255,255,255,.16);
+
+  --text:  #eef2f8;
+  --muted: #7d8aa3;
+
+  --gold:  #ffd166;
+  --blue:  #5b82f6;
+  --green: #22c55e;
+  --red:   #ef4444;
+  --grey:  #64748b;
+
+  --safe-t: 0px;
+  --safe-b: 0px;
+  --safe-l: 0px;
+  --safe-r: 0px;
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --dur: .18s;
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  :root {
+    --safe-t: env(safe-area-inset-top);
+    --safe-b: env(safe-area-inset-bottom);
+    --safe-l: env(safe-area-inset-left);
+    --safe-r: env(safe-area-inset-right);
   }
-  @keyframes pop {
-    from { transform: scale(.92); opacity: 0; }
-    to   { transform: scale(1);  opacity: 1; }
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 520px at 50% -12%, rgba(91,130,246,.13), transparent 70%),
+    radial-gradient(700px 420px at 90% 110%, rgba(255,209,102,.06), transparent 70%);
+
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+@supports (height: 100dvh) {
+  body { height: 100dvh; }
+}
+
+/* ---------------------------------------------------------------- topbar */
+
+.topbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding:
+    calc(var(--safe-t) + 10px)
+    calc(var(--safe-r) + 14px)
+    10px
+    calc(var(--safe-l) + 14px);
+  pointer-events: none;
+}
+
+.app-title {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: #cbd5e1;
+  text-shadow: 0 2px 14px rgba(0,0,0,.75);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.app-title .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 12px rgba(255,209,102,.9);
+}
+
+.topbar-actions { display: flex; gap: 8px; pointer-events: auto; }
+
+.icon-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px; height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text);
+  background: rgba(19,26,40,.94);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  box-shadow: 0 8px 22px rgba(0,0,0,.45);
+  transition: transform .12s var(--ease), background .15s ease;
+}
+.icon-btn:active { transform: scale(.94); background: rgba(30,40,60,.98); }
+
+/* ------------------------------------------------------------------ menu */
+
+.menu {
+  position: fixed;
+  z-index: 60;
+  top: calc(var(--safe-t) + 62px);
+  right: calc(var(--safe-r) + 12px);
+  min-width: 212px;
+  max-width: calc(100vw - 24px - var(--safe-l) - var(--safe-r));
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  box-shadow: 0 22px 55px rgba(0,0,0,.7);
+  transform-origin: top right;
+  animation: pop .14s var(--ease);
+}
+
+.menu button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 14px;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: 11px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.menu button:active { background: rgba(255,255,255,.07); }
+.menu button.danger { color: #ff8080; }
+.menu .sep {
+  height: 1px;
+  margin: 5px 8px;
+  background: var(--line);
+}
+
+/* ---------------------------------------------------------------- canvas */
+
+#canvas-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+  background-color: transparent;
+  background-image: radial-gradient(circle, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: local;
+  background-position: 0 0;
+  will-change: scroll-position;
+}
+
+#canvas {
+  display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-x pan-y;
+}
+
+/* ------------------------------------------------------------ svg nodes */
+
+.node { cursor: grab; }
+.node:active { cursor: grabbing; }
+.node text { pointer-events: none; user-select: none; -webkit-user-select: none; }
+
+.node polygon,
+.node rect {
+  stroke-width: 2;
+  transition: stroke-width var(--dur) ease, filter var(--dur) ease;
+}
+
+.node-start polygon        { fill: url(#gStart);  stroke: var(--gold); }
+.node-start .node-label    { fill: #ffe6a3; font-weight: 800; }
+
+.node-branch polygon       { fill: url(#gBranch); stroke: var(--blue); }
+.node-branch .node-label   { fill: #cfe0ff; font-weight: 700; }
+
+.status-in_progress rect       { fill: url(#gProg); stroke: var(--grey); }
+.status-in_progress .node-label{ fill: #d8dfea; }
+
+.status-done rect          { fill: url(#gDone); stroke: var(--green); }
+.status-done .node-label   { fill: #c7f7d8; }
+
+.status-todo rect          { fill: url(#gTodo); stroke: var(--red); }
+.status-todo .node-label   { fill: #ffd7d7; }
+
+.node .node-desc { fill: #7d8aa3; font-weight: 400; }
+
+.node.selected polygon,
+.node.selected rect { stroke-width: 3; }
+
+.node-start.selected polygon    { -webkit-filter: drop-shadow(0 0 11px rgba(255,209,102,.7)); filter: drop-shadow(0 0 11px rgba(255,209,102,.7)); }
+.node-branch.selected polygon   { -webkit-filter: drop-shadow(0 0 11px rgba(91,130,246,.7));  filter: drop-shadow(0 0 11px rgba(91,130,246,.7)); }
+.status-done.selected rect      { -webkit-filter: drop-shadow(0 0 11px rgba(34,197,94,.7));   filter: drop-shadow(0 0 11px rgba(34,197,94,.7)); }
+.status-todo.selected rect      { -webkit-filter: drop-shadow(0 0 11px rgba(239,68,68,.7));   filter: drop-shadow(0 0 11px rgba(239,68,68,.7)); }
+.status-in_progress.selected rect { -webkit-filter: drop-shadow(0 0 11px rgba(100,116,139,.7)); filter: drop-shadow(0 0 11px rgba(100,116,139,.7)); }
+
+.link {
+  fill: none;
+  stroke: #1e2638;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+/* --------------------------------------------------------------- zoompill */
+
+.zoom-pill {
+  position: fixed;
+  z-index: 30;
+  top: calc(var(--safe-t) + 66px);
+  left: 50%;
+  padding: 6px 13px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  color: #93a1b8;
+  background: rgba(19,26,40,.95);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.55);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-6px);
+  transition: opacity .2s ease, transform .2s var(--ease);
+}
+.zoom-pill.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------------------------------------------------------------- selbar */
+
+.selbar {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: calc(var(--safe-b) + 14px);
+  transform: translateX(-50%);
+  width: calc(100% - 24px - var(--safe-l) - var(--safe-r));
+  max-width: 460px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 9px 8px 16px;
+  background: rgba(19,26,40,.97);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  box-shadow: 0 20px 46px rgba(0,0,0,.72);
+  animation: slideUp .22s var(--ease);
+}
+
+.selbar-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selbar-actions { display: flex; gap: 7px; flex-shrink: 0; }
+
+/* --------------------------------------------------------------- buttons */
+
+.btn {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 42px;
+  padding: 0 15px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--text);
+  background: rgba(255,255,255,.07);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform .1s var(--ease), background .15s ease;
+}
+.btn:active { transform: scale(.96); background: rgba(255,255,255,.13); }
+
+.btn.primary {
+  background: linear-gradient(180deg, #4b8bfb, #2f6fe0);
+  border-color: rgba(140,180,255,.55);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(59,130,246,.32);
+}
+.btn.primary:active { background: linear-gradient(180deg, #3d7cf0, #2563eb); }
+
+.btn.danger {
+  color: #ff8a8a;
+  background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.28);
+}
+.btn.danger:active { background: rgba(239,68,68,.22); }
+
+/* ---------------------------------------------------------------- modal */
+
+.modal {
+  position: fixed;
+  z-index: 100;
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding:
+    calc(var(--safe-t) + 16px)
+    calc(var(--safe-r) + 16px)
+    calc(var(--safe-b) + 16px)
+    calc(var(--safe-l) + 16px);
+  background: rgba(4,6,10,.8);
+  animation: fade .16s ease;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 22px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  box-shadow: 0 28px 70px rgba(0,0,0,.82);
+  animation: pop .18s var(--ease);
+}
+
+.modal-card h2 {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.2px;
+}
+
+.field { display: block; margin-bottom: 15px; }
+
+.field > span {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field > span em { font-style: normal; font-weight: 600; text-transform: none; letter-spacing: 0; opacity: .7; }
+
+.field input,
+.field textarea,
+.field select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 16px;      /* 16px stops iOS Safari from auto-zooming on focus */
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--input-bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  outline: none;
+  resize: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.field textarea { min-height: 76px; }
+
+.field select {
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d8aa3' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  background-size: 17px 17px;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: rgba(91,130,246,.75);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.22);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+/* --------------------------------------------------------------- helpers */
+
+.hidden { display: none !important; }
+
+@keyframes pop {
+  from { transform: scale(.93); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translate(-50%, 18px); opacity: 0; }
+  to   { transform: translate(-50%, 0);    opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
   }
-  #menu button {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 12px 14px;
-    background: transparent;
-    border: 0;
-    color: #e6e9ef;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  #menu button:active { background: rgba(255, 255, 255, 0.06); }
-  #menu button.danger { color: #ff6b6b; }
-  #menu .sep {
-    height: 1px; background: rgba(255, 255, 255, 0.08); margin: 4px 6px;
-  }
+}
 
-  #canvas-wrap {
-    flex: 1;
-    overflow: auto;
-    position: relative;
-    background-color: #080a0f;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-    background-size: 28px 28px;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    touch-action: pan-x pan-y;
-  }
-  #canvas {
-    display: block;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: pan-x pan-y;
-  }
-
-  .node {
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-  }
-  .node:active { cursor: grabbing; }
-
-  .node polygon, .node rect {
-    stroke-width: 2;
-    transition: filter .2s ease, stroke-width .2s ease, fill .2s ease, stroke .2s ease;
-  }
-
-  .node-start polygon { fill: #241c0c; stroke: #ffd166; }
-  .node-start.selected polygon { filter: drop-shadow(0 0 16px rgba(255,209,102,0.6)); stroke-width: 3.5; }
-  .node-start .node-label { fill: #ffd166; font-weight: 800; }
-
-  .node-branch polygon { fill: #10172a; stroke: #5b82f6; }
-  .node-branch.selected polygon { filter: drop-shadow(0 0 16px rgba(91,130,246,0.6)); stroke-width: 3.5; }
-  .node-branch .node-label { fill: #bfdbfe; font-weight: 700; }
-
-  .status-in_progress rect { fill: #151a24; stroke: #64748b; }
-  .status-in_progress.selected rect { filter: drop-shadow(0 0 16px rgba(100,116,139,0.6)); stroke-width: 3.5; }
-  .status-in_progress .node-label { fill: #cbd5e1; }
-
-  .status-done rect { fill: #0b2216; stroke: #22c55e; }
-  .status-done.selected rect { filter: drop-shadow(0 0 16px rgba(34,197,94,0.6)); stroke-width: 3.5; }
-  .status-done .node-label { fill: #bbf7d0; }
-
-  .status-todo rect { fill: #281115; stroke: #ef4444; }
-  .status-todo.selected rect { filter: drop-shadow(0 0 16px rgba(239,68,68,0.6)); stroke-width: 3.5; }
-  .status-todo .node-label { fill: #fecaca; }
-
-  .node.dragging { filter: drop-shadow(0 12px 28px rgba(0,0,0,0.8)); }
-
-  .link {
-    fill: none;
-    stroke: #1e2638;
-    stroke-width: 2.5;
-    stroke-linecap: round;
-  }
-
-  .node-label, .node-desc {
-    font-family: inherit;
-    pointer-events: none;
-    user-select: none;
-  }
-  .node-label { font-weight: 600; }
-  .node-desc  { font-weight: 400; fill: #64748b; }
-
-  .selbar {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    width: calc(100% - 32px);
-    max-width: 440px;
-    background: rgba(18, 22, 32, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-    z-index: 40;
-    animation: slideUp .2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+/* Wider screens: keep the action bar compact and tidy */
+@media (min-width: 720px) {
+  .selbar { left: auto; right: calc(var(--safe-r) + 18px); transform: none; }
   @keyframes slideUp {
-    from { transform: translate(-50%, 20px); opacity: 0; }
-    to   { transform: translate(-50%, 0);    opacity: 1; }
+    from { transform: translateY(18px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
   }
-  .selbar-title {
-    flex: 1;
-    min-width: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: #e2e8f0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .selbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-  .btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #f1f5f9;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: all .15s ease;
-    touch-action: manipulation;
-    user-select: none;
-  }
-  .btn:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.12); }
-  .btn.primary { background: #3b82f6; border-color: #60a5fa; color: #fff; }
-  .btn.primary:active { background: #2563eb; }
-  .btn.danger { color: #f87171; border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.1); }
-
-  .zoom-pill {
-    position: fixed;
-    left: 16px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    background: rgba(18, 22, 32, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #64748b;
-    z-index: 30;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .2s ease;
-  }
-  .zoom-pill.show { opacity: 1; }
-
-  .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 100;
-  }
-  .hidden { display: none !important; }
-
-  .modal-card {
-    background: #121620;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    padding: 24px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.8);
-    animation: pop .15s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .modal-card h2 {
-    margin: 0 0 20px;
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-  }
-  .field { display: block; margin-bottom: 16px; }
-  .field > span {
-    display: block;
-    font-size: 11px;
-    font-weight: 700;
-    color: #64748b;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-  }
-  .field input, .field textarea, .field select {
-    width: 100%;
-    background: #080a0f;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 12px 14px;
-    color: #f1f5f9;
-    font-size: 15px;
-    font-family: inherit;
-    outline: none;
-    resize: none;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .field input:focus, .field textarea:focus, .field select:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 24px;
-  }
+}
 </style>
 </head>
+
 <body>
 
 <header class="topbar">
-  <div class="app-title">SkillTree</div>
+  <div class="app-title"><span class="dot"></span>SkillTree</div>
   <div class="topbar-actions">
-    <button id="btn-menu" class="icon-btn" aria-label="Menu">⋯</button>
+    <button id="btn-menu" class="icon-btn" type="button" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">⋯</button>
   </div>
 </header>
 
-<div id="menu" class="hidden">
-  <button data-menu="center">⊙ Center View</button>
-  <button data-menu="layout">⚙ Auto Layout</button>
+<nav id="menu" class="menu hidden" aria-label="Main menu">
+  <button type="button" data-menu="center">⊙ Center view</button>
+  <button type="button" data-menu="layout">⚙ Auto layout</button>
   <div class="sep"></div>
-  <button data-menu="export">⬇ Export JSON</button>
-  <button data-menu="import">⬆ Import JSON</button>
+  <button type="button" data-menu="export">⬇ Export JSON</button>
+  <button type="button" data-menu="import">⬆ Import JSON</button>
   <div class="sep"></div>
-  <button data-menu="reset" class="danger">✕ Reset Tree</button>
-</div>
+  <button type="button" data-menu="reset" class="danger">✕ Reset tree</button>
+</nav>
 
 <main id="canvas-wrap">
-  <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+  <svg id="canvas"
+       xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 4000 3000"
+       preserveAspectRatio="xMinYMin meet"
+       aria-label="Skill tree canvas">
+    <defs>
+      <linearGradient id="gStart" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#3d3118"/>
+        <stop offset="100%" stop-color="#17120a"/>
+      </linearGradient>
+      <linearGradient id="gBranch" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#18233e"/>
+        <stop offset="100%" stop-color="#0c1222"/>
+      </linearGradient>
+      <linearGradient id="gProg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#182030"/>
+        <stop offset="100%" stop-color="#0c1119"/>
+      </linearGradient>
+      <linearGradient id="gDone" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#0d2a1b"/>
+        <stop offset="100%" stop-color="#071309"/>
+      </linearGradient>
+      <linearGradient id="gTodo" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#2c1318"/>
+        <stop offset="100%" stop-color="#150a0c"/>
+      </linearGradient>
+    </defs>
+    <g id="layer-links"></g>
+    <g id="layer-nodes"></g>
+  </svg>
 </main>
 
-<div class="zoom-pill" id="zoom-pill">100%</div>
+<div class="zoom-pill" id="zoom-pill" aria-hidden="true">100%</div>
 
-<div id="selbar" class="selbar hidden">
+<div id="selbar" class="selbar hidden" role="toolbar" aria-label="Node actions">
   <div class="selbar-title" id="sel-title"></div>
   <div class="selbar-actions">
-    <button class="btn" data-act="add">+ Child</button>
-    <button class="btn" data-act="edit">Edit</button>
-    <button class="btn danger" data-act="del">Del</button>
+    <button type="button" class="btn" data-act="add">+ Child</button>
+    <button type="button" class="btn" data-act="edit">Edit</button>
+    <button type="button" class="btn danger" data-act="del">Del</button>
   </div>
 </div>
 
-<div id="modal" class="modal hidden">
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-card">
-    <h2 id="modal-title">Edit Node</h2>
+    <h2 id="modal-title">Edit node</h2>
+
     <label class="field">
       <span>Title</span>
-      <input id="in-title" type="text" maxlength="60" placeholder="e.g. Save $500">
+      <input id="in-title" type="text" maxlength="60" placeholder="e.g. Save $500"
+             autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false">
     </label>
+
     <label class="field" id="field-type">
-      <span>Node Type</span>
+      <span>Node type</span>
       <select id="in-type">
-        <option value="task">🟩 Task (Statusable)</option>
-        <option value="branch">🔷 Category (Blue)</option>
+        <option value="task">🟩 Task (status)</option>
+        <option value="branch">🔷 Category (blue)</option>
       </select>
     </label>
+
     <label class="field" id="field-status">
-      <span>Task Status</span>
+      <span>Task status</span>
       <select id="in-status">
-        <option value="in_progress">⚪ Grey (In Progress)</option>
-        <option value="done">🟢 Green (Done)</option>
-        <option value="todo">🔴 Red (Not Done)</option>
+        <option value="in_progress">⚪ In progress</option>
+        <option value="done">🟢 Done</option>
+        <option value="todo">🔴 Not done</option>
       </select>
     </label>
+
     <label class="field">
       <span>Description <em>(optional)</em></span>
-      <textarea id="in-desc" rows="3" maxlength="200" placeholder="Add extra notes..."></textarea>
+      <textarea id="in-desc" rows="3" maxlength="200" placeholder="Add extra notes…"
+                autocorrect="off" spellcheck="false"></textarea>
     </label>
+
     <div class="modal-actions">
-      <button id="btn-cancel" class="btn">Cancel</button>
-      <button id="btn-save" class="btn primary">Save</button>
+      <button id="btn-cancel" class="btn" type="button">Cancel</button>
+      <button id="btn-save" class="btn primary" type="button">Save</button>
     </div>
   </div>
 </div>
@@ -394,100 +612,126 @@
 (function () {
   'use strict';
 
-  function initServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      const swCode = `
-        const CACHE_NAME = 'skilltree-offline-v3';
-        self.addEventListener('install', (e) => {
-          self.skipWaiting();
-        });
-        self.addEventListener('activate', (e) => {
-          e.waitUntil(
-            caches.keys().then((keys) => 
-              Promise.all(keys.map((k) => k !== CACHE_NAME && caches.delete(k)))
-            ).then(() => self.clients.claim())
-          );
-        });
-        self.addEventListener('fetch', (e) => {
-          if (e.request.method !== 'GET') return;
-          e.respondWith(
-            caches.match(e.request).then((cached) => {
-              const networked = fetch(e.request)
-                .then((res) => {
-                  const cacheCopy = res.clone();
-                  caches.open(CACHE_NAME).then((c) => c.put(e.request, cacheCopy));
-                  return res;
-                })
-                .catch(() => cached);
-              return cached || networked;
-            })
-          );
-        });
-      `;
-      const blob = new Blob([swCode], { type: 'text/javascript' });
-      const blobUrl = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(blobUrl).catch(() => {});
-    }
+  /* ==================================================================
+     1. Constants & tiny helpers
+     ================================================================== */
+
+  var NS          = 'http://www.w3.org/2000/svg';
+  var STORAGE_KEY = 'skilltree.v3';
+
+  var WORLD_W = 4000;
+  var WORLD_H = 3000;
+  var START_X = WORLD_W / 2;
+  var START_Y = 300;
+
+  var MIN_ZOOM = 0.30;
+  var MAX_ZOOM = 1.60;
+
+  var START_R = 84;   /* star outer radius */
+  var START_r = 41;   /* star inner radius */
+
+  function $(sel) { return document.querySelector(sel); }
+  function r1(v)  { return Math.round(v * 10) / 10; }
+
+  function uid() {
+    return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
   }
 
-  const STORAGE_KEY = 'skilltree.v3';
-  const WORLD_W = 4000;
-  const WORLD_H = 3000;
-  const START_X = WORLD_W / 2;
-  const START_Y = 220;
-  const MIN_ZOOM = 0.25;
-  const MAX_ZOOM = 1.6;
-  const $ = (sel) => document.querySelector(sel);
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
 
-  let state = { nodes: [] };
-  let selectedId = null;
-  let modalMode = null;
-  let modalTargetId = null;
-  let zoom = 1;
-  let drag = null;
-  let suppressClick = false;
+  /* ==================================================================
+     2. DOM references (filled in init)
+     ================================================================== */
 
-  const uid = () => Math.random().toString(36).slice(2, 9);
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g,
-    c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  var svg, wrap, layerLinks, layerNodes, zoomPill, selbar, selTitle, menu, modal;
+
+  /* ==================================================================
+     3. State
+     ================================================================== */
+
+  var state      = { nodes: [] };
+  var nodeIndex  = {};        /* id -> node object   */
+  var nodeEls    = {};        /* id -> <g> element   */
+  var linkEls    = {};        /* id -> [path, ...]   */
+  var selectedId = null;
+  var selectedEl = null;
+
+  var modalMode     = null;
+  var modalTargetId = null;
+
+  var zoom = 1;
+  var drag = null;
+  var bgTap = null;
+  var pinch = null;
+  var suppressClick = false;
+
+  /* ==================================================================
+     4. Geometry / text helpers
+     ================================================================== */
 
   function nodeSize(n) {
     if (n.type === 'start')  return { w: 170, h: 170 };
-    if (n.type === 'branch') return { w: 190, h: 82 };
+    if (n.type === 'branch') return { w: 190, h: 82  };
     return { w: 180, h: 90 };
   }
 
   function starPoints(cx, cy, R, r, points) {
     points = points || 5;
-    const pts = [];
-    for (let i = 0; i < points * 2; i++) {
-      const rad = (i % 2 === 0) ? R : r;
-      const a = (Math.PI / points) * i - Math.PI / 2;
-      pts.push(
-        (cx + rad * Math.cos(a)).toFixed(2) + ',' +
-        (cy + rad * Math.sin(a)).toFixed(2)
+    var out = [];
+    for (var i = 0; i < points * 2; i++) {
+      var rad = (i % 2 === 0) ? R : r;
+      var a   = (Math.PI / points) * i - Math.PI / 2;
+      out.push(
+        (cx + rad * Math.cos(a)).toFixed(1) + ',' +
+        (cy + rad * Math.sin(a)).toFixed(1)
       );
     }
-    return pts.join(' ');
+    return out.join(' ');
   }
 
   function wrapText(text, maxChars, maxLines) {
-    const words = String(text || '').split(/\s+/).filter(Boolean);
-    const lines = [];
-    let cur = '';
-    for (let i = 0; i < words.length; i++) {
-      const w = words[i];
-      const test = cur ? cur + ' ' + w : w;
+    var words = String(text == null ? '' : text).split(/\s+/).filter(Boolean);
+    var lines = [];
+    var cur = '';
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      var test = cur ? cur + ' ' + w : w;
       if (test.length > maxChars && cur) {
+        if (lines.length === maxLines - 1) {
+          var trimmed = cur.length > maxChars - 2 ? cur.slice(0, maxChars - 2) : cur;
+          lines.push(trimmed + '…');
+          return lines;
+        }
         lines.push(cur);
         cur = w;
-        if (lines.length >= maxLines) { cur = ''; break; }
       } else {
         cur = test;
       }
     }
-    if (cur && lines.length < maxLines) lines.push(cur);
-    return lines;
+    if (cur) lines.push(cur);
+    return lines.length ? lines : [''];
+  }
+
+  /* ==================================================================
+     5. Persistence
+     ================================================================== */
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (!data || !data.nodes || !data.nodes.length) return null;
+      return data;
+    } catch (e) { return null; }
   }
 
   function defaultState() {
@@ -499,351 +743,524 @@
     };
   }
 
-  function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-  }
-
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      const data = JSON.parse(raw);
-      if (!data || !Array.isArray(data.nodes) || !data.nodes.length) return null;
-      return data;
-    } catch (e) { return null; }
-  }
+  /* ==================================================================
+     6. Auto layout
+     ================================================================== */
 
   function computeAutoLayout() {
-    const root = state.nodes.find(n => n.type === 'start');
+    var root = getRoot();
     if (!root) return;
 
-    const H_GAP = 40;
-    const V_GAP = 90;
+    var H_GAP = 40;
+    var V_GAP = 90;
 
-    function sw(n) {
-      const kids = state.nodes.filter(k => k.parentId === n.id);
+    function subtreeWidth(n) {
+      var kids = childrenOf(n.id);
       if (!kids.length) return nodeSize(n).w;
-      const total = kids.reduce((s, k) => s + sw(k), 0) + H_GAP * (kids.length - 1);
+      var total = 0;
+      for (var i = 0; i < kids.length; i++) {
+        total += subtreeWidth(kids[i]);
+        if (i) total += H_GAP;
+      }
       return Math.max(nodeSize(n).w, total);
     }
 
     function place(n, cx, cy) {
       n.x = cx;
       n.y = cy;
-      const kids = state.nodes.filter(k => k.parentId === n.id);
+      var kids = childrenOf(n.id);
       if (!kids.length) return;
-      const total = kids.reduce((s, k) => s + sw(k), 0) + H_GAP * (kids.length - 1);
-      let x = cx - total / 2;
-      const topY = cy + nodeSize(n).h / 2 + V_GAP;
-      kids.forEach(k => {
-        const kw = sw(k);
+
+      var total = 0;
+      for (var i = 0; i < kids.length; i++) {
+        total += subtreeWidth(kids[i]);
+        if (i) total += H_GAP;
+      }
+
+      var x = cx - total / 2;
+      var topY = cy + nodeSize(n).h / 2 + V_GAP;
+
+      for (var j = 0; j < kids.length; j++) {
+        var k = kids[j];
+        var kw = subtreeWidth(k);
         place(k, x + kw / 2, topY + nodeSize(k).h / 2);
         x += kw + H_GAP;
-      });
+      }
     }
 
     place(root, START_X, START_Y);
   }
 
-  function render() {
-    const svg = $('#canvas');
-    const parts = [];
+  /* ==================================================================
+     7. Node lookup helpers
+     ================================================================== */
 
-    parts.push('<g class="links">');
-    for (const n of state.nodes) {
-      if (!n.parentId) continue;
-      const p = state.nodes.find(x => x.id === n.parentId);
-      if (!p) continue;
-      const y1 = p.y + nodeSize(p).h / 2;
-      const y2 = n.y - nodeSize(n).h / 2;
-      const my = (y1 + y2) / 2;
-      parts.push(
-        '<path class="link" d="M ' + p.x.toFixed(1) + ' ' + y1.toFixed(1) +
-        ' C ' + p.x.toFixed(1) + ' ' + my.toFixed(1) + ', ' +
-        n.x.toFixed(1) + ' ' + my.toFixed(1) + ', ' +
-        n.x.toFixed(1) + ' ' + y2.toFixed(1) + '" />'
-      );
+  function indexNodes() {
+    nodeIndex = {};
+    for (var i = 0; i < state.nodes.length; i++) {
+      nodeIndex[state.nodes[i].id] = state.nodes[i];
     }
-    parts.push('</g>');
-
-    for (const n of state.nodes) {
-      parts.push(nodeSVG(n, n.id === selectedId));
-    }
-
-    svg.innerHTML = parts.join('');
   }
 
-  function nodeSVG(n, isSelected) {
-    const { w, h } = nodeSize(n);
-    const cx = n.x, cy = n.y;
-    const isDragging = drag && drag.moved && drag.id === n.id;
-    const statusClass = (n.type === 'task' && n.status) ? ' status-' + n.status : '';
-    const cls = 'node node-' + n.type + statusClass +
-                (isSelected ? ' selected' : '') +
-                (isDragging ? ' dragging' : '');
+  function getRoot() {
+    for (var i = 0; i < state.nodes.length; i++) {
+      if (state.nodes[i].type === 'start') return state.nodes[i];
+    }
+    return null;
+  }
 
-    let shape = '';
+  function childrenOf(id) {
+    var out = [];
+    for (var i = 0; i < state.nodes.length; i++) {
+      if (state.nodes[i].parentId === id) out.push(state.nodes[i]);
+    }
+    return out;
+  }
+
+  /* ==================================================================
+     8. Rendering
+     ================================================================== */
+
+  function nodeClass(n) {
+    var c = 'node node-' + n.type;
+    if (n.type === 'task' && n.status) c += ' status-' + n.status;
+    return c;
+  }
+
+  function linkPath(p, c) {
+    var y1 = p.y + nodeSize(p).h / 2;
+    var y2 = c.y - nodeSize(c).h / 2;
+    var my = (y1 + y2) / 2;
+    return 'M' + r1(p.x) + ' ' + r1(y1) +
+           'C' + r1(p.x) + ' ' + r1(my) + ' ' +
+                 r1(c.x) + ' ' + r1(my) + ' ' +
+                 r1(c.x) + ' ' + r1(y2);
+  }
+
+  function buildNodeEl(n) {
+    var size = nodeSize(n);
+    var w = size.w, h = size.h;
+
+    var g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', nodeClass(n));
+    g.setAttribute('data-id', n.id);
+    g.setAttribute('transform', 'translate(' + r1(n.x) + ' ' + r1(n.y) + ')');
+
+    if (n.description) {
+      var tip = document.createElementNS(NS, 'title');
+      tip.textContent = n.description;
+      g.appendChild(tip);
+    }
+
+    /* ---- shape ---- */
+    var shape;
     if (n.type === 'start') {
-      shape = '<polygon points="' + starPoints(cx, cy, 82, 40) + '" />';
+      shape = document.createElementNS(NS, 'polygon');
+      shape.setAttribute('points', starPoints(0, 0, START_R, START_r, 5));
     } else if (n.type === 'branch') {
-      const s = 16;
-      const pts = [
-        [cx - w / 2 + s, cy - h / 2],
-        [cx + w / 2,     cy - h / 2],
-        [cx + w / 2 - s, cy + h / 2],
-        [cx - w / 2,     cy + h / 2]
-      ].map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-      shape = '<polygon points="' + pts + '" />';
+      var s = 16;
+      shape = document.createElementNS(NS, 'polygon');
+      shape.setAttribute('points',
+        r1(-w / 2 + s) + ',' + r1(-h / 2) + ' ' +
+        r1(w / 2)     + ',' + r1(-h / 2) + ' ' +
+        r1(w / 2 - s) + ',' + r1(h / 2)  + ' ' +
+        r1(-w / 2)    + ',' + r1(h / 2));
     } else {
-      shape = '<rect x="' + (cx - w / 2).toFixed(1) + '" y="' + (cy - h / 2).toFixed(1) +
-              '" width="' + w + '" height="' + h + '" rx="14" />';
+      shape = document.createElementNS(NS, 'rect');
+      shape.setAttribute('x', r1(-w / 2));
+      shape.setAttribute('y', r1(-h / 2));
+      shape.setAttribute('width', w);
+      shape.setAttribute('height', h);
+      shape.setAttribute('rx', 15);
     }
+    g.appendChild(shape);
 
-    const tooltip = n.description
-      ? '<title>' + esc(n.description) + '</title>' : '';
+    /* ---- text ---- */
+    var isStart  = n.type === 'start';
+    var isBranch = n.type === 'branch';
 
-    return '<g class="' + cls + '" data-id="' + n.id + '">' +
-           tooltip + shape + textSVG(n, cx, cy) + '</g>';
-  }
-
-  function textSVG(n, cx, cy) {
-    const isStart  = n.type === 'start';
-    const isBranch = n.type === 'branch';
-
-    let titleFS, descFS, titleChars, titleLinesMax, descChars, descLinesMax;
-
+    var titleFS, descFS, titleChars, titleMax, descChars, descMax;
     if (isStart) {
-      titleFS = 13; descFS = 0;
-      titleChars = 9; titleLinesMax = 3;
-      descChars = 0; descLinesMax = 0;
+      titleFS = 14;   descFS = 0;
+      titleChars = 9; titleMax = 3;
+      descChars = 0;  descMax = 0;
     } else if (isBranch) {
-      titleFS = 15; descFS = 11;
-      titleChars = 21; titleLinesMax = 2;
-      descChars = 24; descLinesMax = 1;
+      titleFS = 15;   descFS = 11.5;
+      titleChars = 21; titleMax = 2;
+      descChars = 25;  descMax = 1;
     } else {
-      titleFS = 14; descFS = 11;
-      titleChars = 20; titleLinesMax = 2;
-      descChars = 22; descLinesMax = 2;
+      titleFS = 14.5; descFS = 11.5;
+      titleChars = 20; titleMax = 2;
+      descChars = 23;  descMax = 2;
     }
 
-    const titleLines = wrapText(n.title, titleChars, titleLinesMax);
-    const descLines = (!isStart && n.description)
-      ? wrapText(n.description, descChars, descLinesMax) : [];
+    var titleLines = wrapText(n.title, titleChars, titleMax);
+    var descLines  = (!isStart && n.description)
+      ? wrapText(n.description, descChars, descMax) : [];
 
-    const titleLH = titleFS + 4;
-    const descLH  = descFS + 3;
-    const blockH  = titleLines.length * titleLH +
-                    (descLines.length ? 4 + descLines.length * descLH : 0);
+    var titleLH = titleFS + 4;
+    var descLH  = descFS + 3.5;
+    var blockH  = titleLines.length * titleLH +
+                  (descLines.length ? 5 + descLines.length * descLH : 0);
 
-    let y = cy - blockH / 2;
-    const out = [];
+    var y = -blockH / 2;
+    var i, t;
 
-    for (const line of titleLines) {
-      out.push(
-        '<text class="node-label" x="' + cx.toFixed(1) + '" y="' + (y + titleFS).toFixed(1) +
-        '" text-anchor="middle" style="font-size:' + titleFS + 'px">' + esc(line) + '</text>'
-      );
+    for (i = 0; i < titleLines.length; i++) {
+      t = document.createElementNS(NS, 'text');
+      t.setAttribute('class', 'node-label');
+      t.setAttribute('x', 0);
+      t.setAttribute('y', r1(y + titleFS * 0.8));
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-size', titleFS);
+      t.textContent = titleLines[i];
+      g.appendChild(t);
       y += titleLH;
     }
 
     if (descLines.length) {
-      y += 4;
-      for (const line of descLines) {
-        out.push(
-          '<text class="node-desc" x="' + cx.toFixed(1) + '" y="' + (y + descFS).toFixed(1) +
-          '" text-anchor="middle" style="font-size:' + descFS + 'px">' + esc(line) + '</text>'
-        );
+      y += 5;
+      for (i = 0; i < descLines.length; i++) {
+        t = document.createElementNS(NS, 'text');
+        t.setAttribute('class', 'node-desc');
+        t.setAttribute('x', 0);
+        t.setAttribute('y', r1(y + descFS * 0.8));
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', descFS);
+        t.textContent = descLines[i];
+        g.appendChild(t);
         y += descLH;
       }
     }
 
-    return out.join('');
+    return g;
   }
+
+  /** Full rebuild — used on structural changes only. */
+  function renderAll() {
+    indexNodes();
+
+    layerLinks.textContent = '';
+    layerNodes.textContent = '';
+    nodeEls = {};
+    linkEls = {};
+    selectedEl = null;
+
+    var i, n, p, path;
+
+    var lfrag = document.createDocumentFragment();
+    for (i = 0; i < state.nodes.length; i++) {
+      n = state.nodes[i];
+      if (!n.parentId) continue;
+      p = nodeIndex[n.parentId];
+      if (!p) continue;
+
+      path = document.createElementNS(NS, 'path');
+      path.setAttribute('class', 'link');
+      path.setAttribute('d', linkPath(p, n));
+      path.__from = p.id;
+      path.__to   = n.id;
+      lfrag.appendChild(path);
+
+      (linkEls[n.id] || (linkEls[n.id] = [])).push(path);
+      (linkEls[p.id] || (linkEls[p.id] = [])).push(path);
+    }
+    layerLinks.appendChild(lfrag);
+
+    var nfrag = document.createDocumentFragment();
+    for (i = 0; i < state.nodes.length; i++) {
+      n = state.nodes[i];
+      var g = buildNodeEl(n);
+      nfrag.appendChild(g);
+      nodeEls[n.id] = g;
+      if (n.id === selectedId) selectedEl = g;
+    }
+    layerNodes.appendChild(nfrag);
+
+    if (selectedEl) selectedEl.classList.add('selected');
+  }
+
+  /** Cheap per-node transform update (used while dragging). */
+  function moveNodeEl(n) {
+    var g = nodeEls[n.id];
+    if (g) g.setAttribute('transform', 'translate(' + r1(n.x) + ' ' + r1(n.y) + ')');
+  }
+
+  /** Recompute only the links touching one node. */
+  function refreshLinks(id) {
+    var arr = linkEls[id];
+    if (!arr) return;
+    for (var i = 0; i < arr.length; i++) {
+      var path = arr[i];
+      var a = nodeIndex[path.__from];
+      var b = nodeIndex[path.__to];
+      if (a && b) path.setAttribute('d', linkPath(a, b));
+    }
+  }
+
+  function updateSelection() {
+    if (selectedEl) selectedEl.classList.remove('selected');
+    selectedEl = selectedId ? (nodeEls[selectedId] || null) : null;
+    if (selectedEl) selectedEl.classList.add('selected');
+  }
+
+  /* ==================================================================
+     9. Zoom & viewport
+     ================================================================== */
 
   function applyZoom() {
-    const svg = $('#canvas');
-    svg.setAttribute('viewBox', '0 0 ' + WORLD_W + ' ' + WORLD_H);
-    svg.setAttribute('width',  WORLD_W * zoom);
-    svg.setAttribute('height', WORLD_H * zoom);
-    svg.style.width  = (WORLD_W * zoom) + 'px';
-    svg.style.height = (WORLD_H * zoom) + 'px';
+    var w = Math.round(WORLD_W * zoom);
+    var h = Math.round(WORLD_H * zoom);
 
-    const wrap = $('#canvas-wrap');
-    const gs = 28 * zoom;
-    wrap.style.backgroundSize = gs + 'px ' + gs + 'px';
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
 
-    updateZoomPill();
+    var gs = 28 * zoom;
+    wrap.style.backgroundSize = gs.toFixed(2) + 'px ' + gs.toFixed(2) + 'px';
   }
 
-  let zoomPillTimer = null;
-  function updateZoomPill() {
-    const pill = $('#zoom-pill');
-    pill.textContent = Math.round(zoom * 100) + '%';
-    pill.classList.add('show');
-    clearTimeout(zoomPillTimer);
-    zoomPillTimer = setTimeout(() => pill.classList.remove('show'), 1200);
+  var pillTimer = null;
+  function showZoomPill() {
+    zoomPill.textContent = Math.round(zoom * 100) + '%';
+    zoomPill.classList.add('show');
+    clearTimeout(pillTimer);
+    pillTimer = setTimeout(function () { zoomPill.classList.remove('show'); }, 1100);
   }
 
-  function setZoom(z, anchor) {
-    const wrap = $('#canvas-wrap');
-    const oldZoom = zoom;
+  function setZoom(z, clientX, clientY) {
     z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z));
-    if (Math.abs(z - oldZoom) < 0.001) return;
+    if (Math.abs(z - zoom) < 0.001) return;
 
-    const rect = wrap.getBoundingClientRect();
-    const ax = (anchor ? anchor.x : rect.width / 2);
-    const ay = (anchor ? anchor.y : rect.height / 2);
+    var rect = wrap.getBoundingClientRect();
+    var ax = (clientX == null) ? rect.width  / 2 : clientX - rect.left;
+    var ay = (clientY == null) ? rect.height / 2 : clientY - rect.top;
 
-    const wx = (wrap.scrollLeft + ax) / oldZoom;
-    const wy = (wrap.scrollTop  + ay) / oldZoom;
+    var wx = (wrap.scrollLeft + ax) / zoom;
+    var wy = (wrap.scrollTop  + ay) / zoom;
 
     zoom = z;
     applyZoom();
 
     wrap.scrollLeft = wx * zoom - ax;
     wrap.scrollTop  = wy * zoom - ay;
+
+    showZoomPill();
   }
 
   function centerOnStart() {
-    const wrap = $('#canvas-wrap');
-    const root = state.nodes.find(n => n.type === 'start');
+    var root = getRoot();
     if (!root) return;
-    const px = root.x * zoom;
-    const py = root.y * zoom;
+    var px = root.x * zoom;
+    var py = root.y * zoom;
     wrap.scrollLeft = px - wrap.clientWidth / 2;
-    wrap.scrollTop  = py - wrap.clientHeight / 2 + 140;
+    wrap.scrollTop  = py - wrap.clientHeight / 2 + 120;
   }
 
   function initialZoom() {
-    const wrap = $('#canvas-wrap');
-    const availW = wrap.clientWidth || window.innerWidth;
-    const availH = wrap.clientHeight || window.innerHeight;
-    const zW = availW / 1000;
-    const zH = availH / 900;
-    return Math.max(MIN_ZOOM, Math.min(1, Math.max(0.55, Math.min(zW, zH))));
+    var w = wrap.clientWidth  || window.innerWidth  || 360;
+    var h = wrap.clientHeight || window.innerHeight || 640;
+    var z = Math.min(w / 460, h / 620);
+    if (z > 1)    z = 1;
+    if (z < 0.62) z = 0.62;
+    return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z));
   }
 
-  function clientToSvg(clientX, clientY) {
-    const svg = $('#canvas');
-    const pt = svg.createSVGPoint();
-    pt.x = clientX;
-    pt.y = clientY;
-    const m = svg.getScreenCTM();
-    if (!m) return { x: 0, y: 0 };
-    const p = pt.matrixTransform(m.inverse());
-    return { x: p.x, y: p.y };
+  /* ==================================================================
+     10. Pointer → SVG coordinate conversion
+     ================================================================== */
+
+  function matrixInverse(el) {
+    var m = el.getScreenCTM();
+    if (!m) return null;
+    if (m.inverse) return m.inverse();
+    /* Fallback for engines without SVGMatrix.inverse() */
+    var det = m.a * m.d - m.b * m.c;
+    if (!det) return null;
+    return {
+      a:  m.d / det, b: -m.b / det,
+      c: -m.c / det, d:  m.a / det,
+      e: (m.c * m.f - m.d * m.e) / det,
+      f: (m.b * m.e - m.a * m.f) / det
+    };
+  }
+
+  function applyInv(inv, x, y) {
+    return {
+      x: inv.a * x + inv.c * y + inv.e,
+      y: inv.b * x + inv.d * y + inv.f
+    };
+  }
+
+  /* ==================================================================
+     11. Dragging
+     ================================================================== */
+
+  function endDrag() {
+    if (!drag) return;
+    if (drag.raf) { cancelAnimationFrame(drag.raf); drag.raf = 0; }
+    var g = nodeEls[drag.id];
+    if (g) g.classList.remove('dragging');
+    try { svg.releasePointerCapture(drag.pointerId); } catch (e) {}
+    drag = null;
   }
 
   function onPointerDown(e) {
-    const g = e.target.closest && e.target.closest('g[data-id]');
-    if (!g) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-    e.preventDefault();
-    e.stopPropagation();
+    var g = e.target && e.target.closest ? e.target.closest('g[data-id]') : null;
 
-    const id = g.getAttribute('data-id');
-    const n = state.nodes.find(x => x.id === id);
+    if (!g) {
+      bgTap = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      return;
+    }
+
+    var id = g.getAttribute('data-id');
+    var n  = nodeIndex[id];
     if (!n) return;
 
-    const pt = clientToSvg(e.clientX, e.clientY);
+    if (e.cancelable) e.preventDefault();
+
+    var inv = matrixInverse(svg);
+    if (!inv) return;
+
+    var p0 = applyInv(inv, e.clientX, e.clientY);
 
     drag = {
       id: id,
       pointerId: e.pointerId,
-      startSvgX: pt.x,
-      startSvgY: pt.y,
-      origX: n.x,
-      origY: n.y,
-      moved: false
+      inv: inv,
+      svgStartX: p0.x,
+      svgStartY: p0.y,
+      originX: n.x,
+      originY: n.y,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      moved: false,
+      raf: 0
     };
 
-    const svg = $('#canvas');
-    try { svg.setPointerCapture(e.pointerId); } catch (ex) {}
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
 
     if (selectedId !== id) {
       selectedId = id;
+      updateSelection();
       updateSelBar();
-      render();
     }
   }
 
   function onPointerMove(e) {
     if (!drag || e.pointerId !== drag.pointerId) return;
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
 
-    const pt = clientToSvg(e.clientX, e.clientY);
-    const dx = pt.x - drag.startSvgX;
-    const dy = pt.y - drag.startSvgY;
+    drag.clientX = e.clientX;
+    drag.clientY = e.clientY;
 
-    const dist = Math.abs(dx) + Math.abs(dy);
-    if (!drag.moved && dist < 5 / zoom) return;
-    drag.moved = true;
+    if (!drag.raf) drag.raf = requestAnimationFrame(applyDrag);
+  }
 
-    const n = state.nodes.find(x => x.id === drag.id);
+  function applyDrag() {
+    if (!drag) return;
+    drag.raf = 0;
+
+    var n = nodeIndex[drag.id];
     if (!n) return;
 
-    n.x = drag.origX + dx;
-    n.y = drag.origY + dy;
+    var p  = applyInv(drag.inv, drag.clientX, drag.clientY);
+    var dx = p.x - drag.svgStartX;
+    var dy = p.y - drag.svgStartY;
 
-    const { w, h } = nodeSize(n);
-    n.x = Math.max(w / 2 + 8, Math.min(WORLD_W - w / 2 - 8, n.x));
-    n.y = Math.max(h / 2 + 8, Math.min(WORLD_H - h / 2 - 8, n.y));
+    if (!drag.moved) {
+      if (Math.abs(dx) + Math.abs(dy) < 4 / zoom) return;
+      drag.moved = true;
+      var g0 = nodeEls[n.id];
+      if (g0) g0.classList.add('dragging');
+    }
 
-    render();
+    var size = nodeSize(n);
+    var nx = drag.originX + dx;
+    var ny = drag.originY + dy;
+
+    nx = Math.max(size.w / 2 + 8, Math.min(WORLD_W - size.w / 2 - 8, nx));
+    ny = Math.max(size.h / 2 + 8, Math.min(WORLD_H - size.h / 2 - 8, ny));
+
+    n.x = nx;
+    n.y = ny;
+
+    moveNodeEl(n);
+    refreshLinks(n.id);
   }
 
   function onPointerUp(e) {
-    if (!drag || e.pointerId !== drag.pointerId) return;
+    if (drag && e.pointerId === drag.pointerId) {
+      if (drag.raf) { cancelAnimationFrame(drag.raf); drag.raf = 0; applyDrag(); }
+      var moved = drag.moved;
+      var g = nodeEls[drag.id];
+      if (g) g.classList.remove('dragging');
+      try { svg.releasePointerCapture(drag.pointerId); } catch (err) {}
+      drag = null;
+      if (moved) { suppressClick = true; save(); }
+    }
 
-    const svg = $('#canvas');
-    try { svg.releasePointerCapture(e.pointerId); } catch (ex) {}
-
-    const wasMoved = drag.moved;
-    drag = null;
-
-    if (wasMoved) {
-      suppressClick = true;
-      save();
-      render();
+    if (bgTap && e.pointerId === bgTap.id) {
+      var dx = Math.abs(e.clientX - bgTap.x);
+      var dy = Math.abs(e.clientY - bgTap.y);
+      if (dx < 9 && dy < 9) selectNode(null);
+      bgTap = null;
     }
   }
 
+  function onPointerCancel(e) {
+    if (drag && e.pointerId === drag.pointerId) endDrag();
+    if (bgTap && e.pointerId === bgTap.id) bgTap = null;
+  }
+
+  /* ==================================================================
+     12. Selection & action bar
+     ================================================================== */
+
   function selectNode(id) {
     selectedId = id;
+    updateSelection();
     updateSelBar();
-    render();
   }
 
   function updateSelBar() {
-    const bar = $('#selbar');
-    if (!selectedId) { bar.classList.add('hidden'); return; }
-    const n = state.nodes.find(x => x.id === selectedId);
-    if (!n) { bar.classList.add('hidden'); return; }
-    $('#sel-title').textContent = n.title;
-    bar.classList.remove('hidden');
+    if (!selectedId) { selbar.classList.add('hidden'); return; }
+    var n = nodeIndex[selectedId];
+    if (!n) { selbar.classList.add('hidden'); return; }
+    selTitle.textContent = n.title;
+    selbar.classList.remove('hidden');
   }
 
+  /* ==================================================================
+     13. Add / edit / delete
+     ================================================================== */
+
   function getChildSlot(parent) {
-    const siblings = state.nodes.filter(n => n.parentId === parent.id);
-    const n = siblings.length;
-    const SPACING = 240;
-    const V_OFFSET = 190;
+    var siblings = childrenOf(parent.id);
+    var n = siblings.length;
+    var SPACING  = 240;
+    var V_OFFSET = 190;
 
     if (n === 0) return { x: parent.x, y: parent.y + V_OFFSET };
-    const side = (n % 2 === 1) ? 1 : -1;
-    const dist = Math.ceil(n / 2) * SPACING;
+
+    var side = (n % 2 === 1) ? 1 : -1;
+    var dist = Math.ceil(n / 2) * SPACING;
     return { x: parent.x + side * dist, y: parent.y + V_OFFSET };
   }
 
   function openAddModal(parentId) {
-    const parent = state.nodes.find(n => n.id === parentId);
+    var parent = nodeIndex[parentId];
     if (!parent) return;
+
     modalMode = 'add';
     modalTargetId = parentId;
-    $('#modal-title').textContent = 'New Child';
+
+    $('#modal-title').textContent = 'New child';
     $('#in-title').value = '';
-    $('#in-desc').value = '';
-    
+    $('#in-desc').value  = '';
+    $('#in-title').placeholder = 'Title…';
+
     if (parent.type === 'start') {
       $('#field-type').classList.add('hidden');
       $('#field-status').classList.add('hidden');
@@ -854,28 +1271,28 @@
       $('#in-status').value = 'in_progress';
     }
 
-    $('#in-title').placeholder = 'Title...';
     $('#modal').classList.remove('hidden');
-    setTimeout(() => $('#in-title').focus(), 80);
+    setTimeout(function () { try { $('#in-title').focus(); } catch (e) {} }, 90);
   }
 
   function openEditModal(id) {
-    const n = state.nodes.find(x => x.id === id);
+    var n = nodeIndex[id];
     if (!n) return;
+
     modalMode = 'edit';
     modalTargetId = id;
-    $('#modal-title').textContent =
-      n.type === 'start' ? 'Edit Start' : 'Edit Node';
+
+    $('#modal-title').textContent = n.type === 'start' ? 'Edit start' : 'Edit node';
     $('#in-title').value = n.title;
-    $('#in-desc').value = n.description || '';
-    
+    $('#in-desc').value  = n.description || '';
+
     if (n.type === 'start') {
       $('#field-type').classList.add('hidden');
       $('#field-status').classList.add('hidden');
     } else {
       $('#field-type').classList.remove('hidden');
       $('#in-type').value = n.type;
-      
+
       if (n.type === 'task') {
         $('#field-status').classList.remove('hidden');
         $('#in-status').value = n.status || 'in_progress';
@@ -885,7 +1302,7 @@
     }
 
     $('#modal').classList.remove('hidden');
-    setTimeout(() => $('#in-title').focus(), 80);
+    setTimeout(function () { try { $('#in-title').focus(); } catch (e) {} }, 90);
   }
 
   function closeModal() {
@@ -895,28 +1312,37 @@
   }
 
   function saveModal() {
-    const title = $('#in-title').value.trim() || 'Untitled';
-    const desc = $('#in-desc').value.trim();
-    const type = $('#in-type').value;
-    const status = $('#in-status').value;
+    var title  = $('#in-title').value.trim() || 'Untitled';
+    var desc   = $('#in-desc').value.trim();
+    var type   = $('#in-type').value;
+    var status = $('#in-status').value;
 
     if (modalMode === 'add') {
-      const parent = state.nodes.find(n => n.id === modalTargetId);
-      if (!parent) return closeModal();
-      const nodeType = parent.type === 'start' ? 'branch' : type;
-      const slot = getChildSlot(parent);
-      const node = {
-        id: uid(), type: nodeType, title: title, description: desc,
-        parentId: parent.id, x: slot.x, y: slot.y
+      var parent = nodeIndex[modalTargetId];
+      if (!parent) { closeModal(); return; }
+
+      var nodeType = (parent.type === 'start') ? 'branch' : type;
+      var slot = getChildSlot(parent);
+
+      var node = {
+        id: uid(),
+        type: nodeType,
+        title: title,
+        description: desc,
+        parentId: parent.id,
+        x: slot.x,
+        y: slot.y
       };
       if (nodeType === 'task') node.status = status;
+
       state.nodes.push(node);
       selectedId = node.id;
+
     } else if (modalMode === 'edit') {
-      const n = state.nodes.find(x => x.id === modalTargetId);
-      if (n) { 
-        n.title = title; 
-        n.description = desc; 
+      var n = nodeIndex[modalTargetId];
+      if (n) {
+        n.title = title;
+        n.description = desc;
         if (n.type !== 'start') {
           n.type = type;
           if (type === 'task') n.status = status;
@@ -927,216 +1353,348 @@
 
     save();
     closeModal();
+    renderAll();
     updateSelBar();
-    render();
   }
 
   function deleteNode(id) {
-    const n = state.nodes.find(x => x.id === id);
+    var n = nodeIndex[id];
     if (!n) return;
 
     if (n.type === 'start') {
-      if (!confirm('Delete the start node? This resets the entire tree.')) return;
+      if (!window.confirm('Delete the start node? This resets the entire tree.')) return;
       state = defaultState();
       selectedId = null;
-      save(); updateSelBar(); render(); centerOnStart();
+      save(); renderAll(); updateSelBar(); centerOnStart();
       return;
     }
 
-    if (!confirm('Delete "' + n.title + '" and all of its children?')) return;
+    if (!window.confirm('Delete "' + n.title + '" and all of its children?')) return;
 
-    const toDelete = new Set([id]);
-    let changed = true;
+    var toDelete = {};
+    toDelete[id] = true;
+
+    var changed = true;
     while (changed) {
       changed = false;
-      for (const node of state.nodes) {
-        if (node.parentId && toDelete.has(node.parentId) && !toDelete.has(node.id)) {
-          toDelete.add(node.id);
+      for (var i = 0; i < state.nodes.length; i++) {
+        var node = state.nodes[i];
+        if (node.parentId && toDelete[node.parentId] && !toDelete[node.id]) {
+          toDelete[node.id] = true;
           changed = true;
         }
       }
     }
-    state.nodes = state.nodes.filter(x => !toDelete.has(x.id));
-    if (toDelete.has(selectedId)) selectedId = null;
-    save(); updateSelBar(); render();
+
+    var kept = [];
+    for (var j = 0; j < state.nodes.length; j++) {
+      if (!toDelete[state.nodes[j].id]) kept.push(state.nodes[j]);
+    }
+    state.nodes = kept;
+
+    if (toDelete[selectedId]) selectedId = null;
+
+    save();
+    renderAll();
+    updateSelBar();
   }
 
+  /* ==================================================================
+     14. Import / export
+     ================================================================== */
+
   function exportJSON() {
-    const data = JSON.stringify({
+    var payload = JSON.stringify({
       version: 3,
       exportedAt: new Date().toISOString(),
       nodes: state.nodes
     }, null, 2);
 
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    var blob = new Blob([payload], { type: 'application/json' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+
     a.href = url;
     a.download = 'skilltree-' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1200);
+
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
   }
 
   function importJSON(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
       try {
-        const data = JSON.parse(e.target.result);
-        if (!data || !Array.isArray(data.nodes) || !data.nodes.length)
-          throw new Error('Invalid file format');
-        if (!data.nodes.some(n => n.type === 'start'))
-          throw new Error('No start node found');
+        var data = JSON.parse(e.target.result);
+        if (!data || !data.nodes || !data.nodes.length) throw new Error('Invalid file format');
+
+        var hasStart = false;
+        for (var i = 0; i < data.nodes.length; i++) {
+          if (data.nodes[i].type === 'start') { hasStart = true; break; }
+        }
+        if (!hasStart) throw new Error('No start node found');
 
         state = { nodes: data.nodes };
         selectedId = null;
         normalize();
-        save(); updateSelBar(); render(); centerOnStart();
-        alert('Tree imported successfully.');
+        save();
+        renderAll();
+        updateSelBar();
+        centerOnStart();
+        window.alert('Tree imported successfully.');
       } catch (err) {
-        alert('Import failed: ' + err.message);
+        window.alert('Import failed: ' + err.message);
       }
     };
+
     reader.readAsText(file);
   }
 
   function normalize() {
-    const root = state.nodes.find(n => n.type === 'start');
-    if (!root) return;
-    const ids = new Set(state.nodes.map(n => n.id));
-    let needsLayout = false;
+    var root = getRoot();
+    if (!root) {
+      state = defaultState();
+      return;
+    }
 
-    for (const n of state.nodes) {
-      if (n.type === 'start') { n.parentId = null; }
-      else if (!n.parentId || !ids.has(n.parentId) || n.parentId === n.id) {
+    var ids = {};
+    for (var i = 0; i < state.nodes.length; i++) ids[state.nodes[i].id] = true;
+
+    var needsLayout = false;
+
+    for (var j = 0; j < state.nodes.length; j++) {
+      var n = state.nodes[j];
+      if (!n.id) n.id = uid();
+
+      if (n.type === 'start') {
+        n.parentId = null;
+      } else if (!n.parentId || !ids[n.parentId] || n.parentId === n.id) {
         n.parentId = root.id;
       }
-      if (n.type === 'task' && !n.status) { n.status = 'in_progress'; }
-      if (typeof n.x !== 'number' || typeof n.y !== 'number') {
+
+      if (n.type === 'task' && !n.status) n.status = 'in_progress';
+      if (typeof n.x !== 'number' || typeof n.y !== 'number' ||
+          !isFinite(n.x) || !isFinite(n.y)) {
         needsLayout = true;
       }
     }
 
-    if (needsLayout) computeAutoLayout();
+    if (needsLayout) {
+      indexNodes();
+      computeAutoLayout();
+    }
   }
 
-  function bindEvents() {
-    const svg = $('#canvas');
-    const wrap = $('#canvas-wrap');
+  /* ==================================================================
+     15. Event wiring
+     ================================================================== */
 
+  function bindEvents() {
+
+    /* ---- pointer dragging ---- */
     svg.addEventListener('pointerdown', onPointerDown);
     svg.addEventListener('pointermove', onPointerMove);
     svg.addEventListener('pointerup', onPointerUp);
-    svg.addEventListener('pointercancel', onPointerUp);
-    svg.addEventListener('lostpointercapture', onPointerUp);
+    svg.addEventListener('pointercancel', onPointerCancel);
+    svg.addEventListener('lostpointercapture', onPointerCancel);
+    svg.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    svg.addEventListener('dragstart',  function (e) { e.preventDefault(); });
 
-    svg.addEventListener('click', (e) => {
-      if (suppressClick) { suppressClick = false; return; }
-      const g = e.target.closest && e.target.closest('g[data-id]');
-      if (!g) selectNode(null);
+    /* ---- wheel zoom (desktop) ---- */
+    wrap.addEventListener('wheel', function (e) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      var factor = e.deltaY < 0 ? 1.12 : (1 / 1.12);
+      setZoom(zoom * factor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    /* ---- pinch zoom (touch) ---- */
+    wrap.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 2) return;
+      if (drag) endDrag();
+      var t1 = e.touches[0], t2 = e.touches[1];
+      var dx = t2.clientX - t1.clientX;
+      var dy = t2.clientY - t1.clientY;
+      pinch = { dist: Math.sqrt(dx * dx + dy * dy) };
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', function (e) {
+      if (!pinch || e.touches.length !== 2) return;
+      if (e.cancelable) e.preventDefault();
+
+      var t1 = e.touches[0], t2 = e.touches[1];
+      var dx = t2.clientX - t1.clientX;
+      var dy = t2.clientY - t1.clientY;
+      var d  = Math.sqrt(dx * dx + dy * dy);
+
+      var cx = (t1.clientX + t2.clientX) / 2;
+      var cy = (t1.clientY + t2.clientY) / 2;
+
+      if (pinch.dist > 0) setZoom(zoom * (d / pinch.dist), cx, cy);
+      pinch.dist = d;
+    }, { passive: false });
+
+    wrap.addEventListener('touchend', function (e) {
+      if (e.touches.length < 2) pinch = null;
+    }, { passive: true });
+
+    wrap.addEventListener('touchcancel', function () { pinch = null; }, { passive: true });
+
+    /* ---- window level pointerup (for background taps) ---- */
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerCancel);
+
+    /* ---- menu ---- */
+    var btnMenu = $('#btn-menu');
+
+    btnMenu.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden');
+      btnMenu.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
 
-    svg.addEventListener('contextmenu', (e) => e.preventDefault());
-
-    wrap.addEventListener('click', (e) => {
-      if (e.target === wrap) selectNode(null);
+    document.addEventListener('click', function (e) {
+      if (menu.classList.contains('hidden')) return;
+      if (e.target.closest && (e.target.closest('#menu') || e.target.closest('#btn-menu'))) return;
+      menu.classList.add('hidden');
+      btnMenu.setAttribute('aria-expanded', 'false');
     });
 
-    $('#in-type').addEventListener('change', (e) => {
-      if (e.target.value === 'task') {
-        $('#field-status').classList.remove('hidden');
-      } else {
-        $('#field-status').classList.add('hidden');
+    menu.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('button[data-menu]') : null;
+      if (!btn) return;
+
+      var act = btn.getAttribute('data-menu');
+      menu.classList.add('hidden');
+      btnMenu.setAttribute('aria-expanded', 'false');
+
+      if (act === 'export') {
+        exportJSON();
+
+      } else if (act === 'import') {
+        $('#file-input').click();
+
+      } else if (act === 'layout') {
+        computeAutoLayout();
+        save(); renderAll(); centerOnStart();
+
+      } else if (act === 'center') {
+        centerOnStart();
+
+      } else if (act === 'reset') {
+        if (window.confirm('Reset the tree? All nodes will be permanently deleted.')) {
+          state = defaultState();
+          selectedId = null;
+          save(); renderAll(); updateSelBar(); centerOnStart();
+        }
       }
     });
 
-    $('#selbar').addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-act]');
+    /* ---- selection bar ---- */
+    selbar.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('button[data-act]') : null;
       if (!btn || !selectedId) return;
-      const act = btn.getAttribute('data-act');
+
+      var act = btn.getAttribute('data-act');
       if (act === 'add')       openAddModal(selectedId);
       else if (act === 'edit') openEditModal(selectedId);
       else if (act === 'del')  deleteNode(selectedId);
     });
 
+    /* ---- modal ---- */
     $('#btn-cancel').addEventListener('click', closeModal);
     $('#btn-save').addEventListener('click', saveModal);
-    $('#modal').addEventListener('click', (e) => {
-      if (e.target.id === 'modal') closeModal();
+
+    $('#modal').addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
     });
-    $('#in-title').addEventListener('keydown', (e) => {
+
+    $('#in-title').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); saveModal(); }
     });
 
-    $('#btn-menu').addEventListener('click', (e) => {
-      e.stopPropagation();
-      $('#menu').classList.toggle('hidden');
+    $('#in-type').addEventListener('change', function (e) {
+      if (e.target.value === 'task') $('#field-status').classList.remove('hidden');
+      else $('#field-status').classList.add('hidden');
     });
 
-    document.addEventListener('click', (e) => {
-      const menu = $('#menu');
-      if (menu.classList.contains('hidden')) return;
-      if (!e.target.closest('#menu') && !e.target.closest('#btn-menu')) {
-        menu.classList.add('hidden');
-      }
-    });
-
-    $('#menu').addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-menu]');
-      if (!btn) return;
-      const act = btn.getAttribute('data-menu');
-      $('#menu').classList.add('hidden');
-
-      if (act === 'export') exportJSON();
-      else if (act === 'import') $('#file-input').click();
-      else if (act === 'layout') {
-        computeAutoLayout();
-        save(); render(); centerOnStart();
-      }
-      else if (act === 'center') centerOnStart();
-      else if (act === 'reset') {
-        if (confirm('Reset the tree? All nodes will be permanently deleted.')) {
-          state = defaultState();
-          selectedId = null;
-          save(); updateSelBar(); render(); centerOnStart();
-        }
-      }
-    });
-
-    $('#file-input').addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
+    /* ---- file import ---- */
+    $('#file-input').addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
       if (file) importJSON(file);
       e.target.value = '';
     });
 
-    wrap.addEventListener('wheel', (e) => {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        const factor = e.deltaY < 0 ? 1.15 : 0.85;
-        setZoom(zoom * factor, { x: e.clientX, y: e.clientY });
+    /* ---- resize / rotation ---- */
+    var resizeTimer = null;
+    function onResize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        applyZoom();
+      }, 120);
+    }
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+
+    /* ---- keyboard shortcuts (desktop) ---- */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        if (!modal.classList.contains('hidden')) { closeModal(); return; }
+        if (!menu.classList.contains('hidden')) {
+          menu.classList.add('hidden');
+          btnMenu.setAttribute('aria-expanded', 'false');
+          return;
+        }
+        selectNode(null);
       }
-    }, { passive: false });
+    });
   }
+
+  /* ==================================================================
+     16. Boot
+     ================================================================== */
 
   function init() {
-    initServiceWorker();
-    const loaded = load();
-    if (loaded) {
-      state = loaded;
-      normalize();
-    } else {
-      state = defaultState();
-    }
+    svg        = $('#canvas');
+    wrap       = $('#canvas-wrap');
+    layerLinks = $('#layer-links');
+    layerNodes = $('#layer-nodes');
+    zoomPill   = $('#zoom-pill');
+    selbar     = $('#selbar');
+    selTitle   = $('#sel-title');
+    menu       = $('#menu');
+    modal      = $('#modal');
+
+    svg.setAttribute('viewBox', '0 0 ' + WORLD_W + ' ' + WORLD_H);
+
+    var loaded = load();
+    state = loaded || defaultState();
+
+    indexNodes();
+    normalize();
 
     zoom = initialZoom();
+    renderAll();
     applyZoom();
-    render();
     bindEvents();
-    setTimeout(centerOnStart, 50);
+    updateSelBar();
+
+    setTimeout(function () {
+      centerOnStart();
+      applyZoom();
+    }, 60);
   }
 
-  init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
 })();
 </script>
 </body>
